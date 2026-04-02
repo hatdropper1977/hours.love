@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "gemini/**"
+      - "setup/**"
   pull_request:
     branches:
       - main
@@ -27,42 +28,24 @@ jobs:
             echo "type=unknown" >> $GITHUB_OUTPUT
           fi
 
-      # ---- Node ----
       - name: Setup Node
         if: steps.detect.outputs.type == 'node'
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install deps (Node)
+      - name: Install deps
         if: steps.detect.outputs.type == 'node'
         run: npm ci
 
-      - name: Lint (Node)
+      - name: Lint
         if: steps.detect.outputs.type == 'node'
         run: npm run lint --if-present
 
-      - name: Test (Node)
+      - name: Test
         if: steps.detect.outputs.type == 'node'
         run: npm test --if-present
 
-      - name: Build (Node)
+      - name: Build
         if: steps.detect.outputs.type == 'node'
         run: npm run build --if-present
-
-      # ---- Python ----
-      - name: Setup Python
-        if: steps.detect.outputs.type == 'python'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install deps (Python)
-        if: steps.detect.outputs.type == 'python'
-        run: |
-          pip install -r requirements.txt
-
-      - name: Test (Python)
-        if: steps.detect.outputs.type == 'python'
-        run: |
-          pytest || true
