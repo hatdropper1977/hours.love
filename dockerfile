@@ -1,7 +1,7 @@
 FROM node:24-bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV WORKDIR=/work
+ENV TZ=America/New_York
 ENV REPO_DIR=/work/hours.love
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -12,15 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
     curl \
     jq \
+  && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
+  && dpkg-reconfigure -f noninteractive tzdata \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Gemini CLI
-RUN npm install -g @google/gemini-cli
+WORKDIR /work
 
-WORKDIR /app
+COPY entrypoint.sh /work/entrypoint.sh
+RUN chmod +x /work/entrypoint.sh
 
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-ENTRYPOINT ["/app/entrypoint.sh"]
-
+ENTRYPOINT ["/work/entrypoint.sh"]
