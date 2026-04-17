@@ -1,3 +1,0 @@
-# hours.love
-
-Hello world.
