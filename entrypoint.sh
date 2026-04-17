@@ -82,13 +82,33 @@ layout: post.liquid
 Then the article body.
 
 Writing rules:
-- 500 to 900 words
+- 400 to 700 words
 - grounded, specific, human
 - no AI meta commentary
 - no emojis
-- no hashtags
-- avoid preachy tone
-- do not invent citations
+- Be direct. Lead with the problem, not an observation about the problem.
+- No transitions like "the payoff is", "the key point is", "the combination is". Just say the thing.
+- No em dashes.
+- No intensifiers: "very", "really", "deeply", "truly", "far more", "that is just".
+- Concrete before abstract. Start with a specific scene, object, or example.
+- Use active voice. Short sentences.
+- Do not explain what you're about to say.
+- No filler phrases: "it's worth noting", "importantly", "fundamentally".
+- Avoid generic statements. Every paragraph must contain at least one concrete detail.
+- No conclusions that summarize the article. End naturally.
+- Do not repeat topics from recent posts.
+- Avoid generic wine education content.
+- After writing, remove 20% of the words without losing meaning.
+
+Style:
+- Write like a person who actually did the thing.
+- Slight edge is fine. Avoid sounding inspirational.
+- If a sentence could be removed without losing meaning, remove it.
+
+Structure:
+- Open with a concrete situation.
+- Build from specific → meaning.
+- No formal "introduction" or "conclusion".
 
 Topic:
 Choose one topic related to Northern California wine:
