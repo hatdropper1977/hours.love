@@ -14,6 +14,11 @@ export REPO_DIR="${REPO_DIR:-/work/hours.love}"
 export POSTS_DIR="${POSTS_DIR:-posts}"
 export DATE_LOCAL="$(date +%F)"
 
+# Context mode:
+#   good   = titles only
+#   better = titles + short snippets
+export RECENT_POSTS_MODE="${RECENT_POSTS_MODE:-better}"
+
 mkdir -p /root/.ssh /work
 chmod 700 /root/.ssh
 
@@ -34,7 +39,6 @@ Host github-hours-love
 EOF
 
 chmod 600 /root/.ssh/config
-
 ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
 chmod 644 /root/.ssh/known_hosts
 
@@ -61,6 +65,71 @@ if [[ -f "$POST_FILE" ]]; then
   exit 0
 fi
 
+# --- recent post context ---
+build_recent_titles_context() {
+  local recent_files=()
+  mapfile -t recent_files < <(find "$POSTS_DIR" -maxdepth 1 -type f -name "*.md" ! -name "${DATE_LOCAL}.md" | sort -r | head -n 5)
+
+  if [[ ${#recent_files[@]} -eq 0 ]]; then
+    echo "No recent posts yet."
+    return
+  fi
+
+  for f in "${recent_files[@]}"; do
+    local title
+    title="$(grep -m1 '^title:' "$f" | sed 's/^title:[[:space:]]*//')"
+    if [[ -z "$title" ]]; then
+      title="$(basename "$f" .md)"
+    fi
+    echo "- ${title}"
+  done
+}
+
+build_recent_snippets_context() {
+  local recent_files=()
+  mapfile -t recent_files < <(find "$POSTS_DIR" -maxdepth 1 -type f -name "*.md" ! -name "${DATE_LOCAL}.md" | sort -r | head -n 3)
+
+  if [[ ${#recent_files[@]} -eq 0 ]]; then
+    echo "No recent posts yet."
+    return
+  fi
+
+  for f in "${recent_files[@]}"; do
+    local title
+    local snippet
+    title="$(grep -m1 '^title:' "$f" | sed 's/^title:[[:space:]]*//')"
+    if [[ -z "$title" ]]; then
+      title="$(basename "$f" .md)"
+    fi
+
+    snippet="$(
+      awk '
+        BEGIN { in_frontmatter=0; started=0; lines=0 }
+        /^---$/ {
+          if (started == 0) { in_frontmatter=1; started=1; next }
+          else if (in_frontmatter == 1) { in_frontmatter=0; next }
+        }
+        in_frontmatter == 0 && NF {
+          print
+          lines++
+          if (lines >= 6) exit
+        }
+      ' "$f" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g'
+    )"
+
+    echo "- Title: ${title}"
+    if [[ -n "$snippet" ]]; then
+      echo "  Snippet: ${snippet}"
+    fi
+  done
+}
+
+if [[ "$RECENT_POSTS_MODE" == "good" ]]; then
+  RECENT_POSTS_CONTEXT="$(build_recent_titles_context)"
+else
+  RECENT_POSTS_CONTEXT="$(build_recent_snippets_context)"
+fi
+
 # --- prompt ---
 PROMPT=$(cat <<EOF
 Write exactly one Eleventy blog post as valid markdown.
@@ -83,6 +152,7 @@ Then the article body.
 
 Writing rules:
 - 400 to 700 words
+- shorter is better than longer
 - grounded, specific, human
 - no AI meta commentary
 - no emojis
@@ -96,19 +166,25 @@ Writing rules:
 - No filler phrases: "it's worth noting", "importantly", "fundamentally".
 - Avoid generic statements. Every paragraph must contain at least one concrete detail.
 - No conclusions that summarize the article. End naturally.
-- Do not repeat topics from recent posts.
 - Avoid generic wine education content.
+- If the topic overlaps with a recent post, choose a different angle instead of repeating.
 - After writing, remove 20% of the words without losing meaning.
+- Do not invent citations.
 
 Style:
 - Write like a person who actually did the thing.
 - Slight edge is fine. Avoid sounding inspirational.
 - If a sentence could be removed without losing meaning, remove it.
+- Title should be specific and slightly intriguing, not generic.
 
 Structure:
 - Open with a concrete situation.
-- Build from specific → meaning.
-- No formal "introduction" or "conclusion".
+- Build from specific to meaning.
+- No formal introduction.
+- No formal conclusion.
+
+Recent posts to avoid repeating:
+${RECENT_POSTS_CONTEXT}
 
 Topic:
 Choose one topic related to Northern California wine:
@@ -119,7 +195,7 @@ Choose one topic related to Northern California wine:
 EOF
 )
 
-# --- build request safely ---
+# --- build request ---
 jq -n --arg prompt "$PROMPT" '{
   contents: [
     {
@@ -144,8 +220,23 @@ curl -sS \
   -d @/tmp/gemini_request.json \
   > /tmp/gemini_response.json
 
-# --- extract text ---
-jq -r '.candidates[0].content.parts[0].text' /tmp/gemini_response.json > "$POST_FILE"
+# --- fail fast on API errors ---
+if jq -e '.error' /tmp/gemini_response.json >/dev/null 2>&1; then
+  echo "❌ Gemini API returned an error:"
+  jq '.error' /tmp/gemini_response.json
+  exit 1
+fi
+
+# --- extract text safely ---
+POST_TEXT="$(jq -r '.candidates[0].content.parts[0].text // empty' /tmp/gemini_response.json)"
+
+if [[ -z "$POST_TEXT" ]]; then
+  echo "❌ Empty post content returned from Gemini."
+  jq '.' /tmp/gemini_response.json
+  exit 1
+fi
+
+printf '%s\n' "$POST_TEXT" > "$POST_FILE"
 
 # --- contamination guard ---
 if grep -qE 'I have written the blog post|/work/|^Here is|^Sure|^```' "$POST_FILE"; then
@@ -154,15 +245,39 @@ if grep -qE 'I have written the blog post|/work/|^Here is|^Sure|^```' "$POST_FIL
   exit 1
 fi
 
-# --- extract sources (if any) ---
+# --- basic format checks ---
+if ! grep -q '^---$' "$POST_FILE"; then
+  echo "❌ Missing front matter."
+  cat "$POST_FILE"
+  exit 1
+fi
+
+if ! grep -q '^title:' "$POST_FILE"; then
+  echo "❌ Missing title in front matter."
+  cat "$POST_FILE"
+  exit 1
+fi
+
+# --- extract real sources, deduped ---
 jq -r '
-.candidates[0].groundingMetadata.groundingChunks[]? 
-| "- [" + .web.title + "](" + .web.uri + ")"
+  [
+    .candidates[0].groundingMetadata.groundingChunks[]?.web
+    | select(.title and .uri)
+    | "- [" + .title + "](" + .uri + ")"
+  ] | unique | .[]
 ' /tmp/gemini_response.json > /tmp/sources.md || true
 
 if [[ -s /tmp/sources.md ]]; then
-  echo -e "\n\n## Sources\n" >> "$POST_FILE"
-  cat /tmp/sources.md >> "$POST_FILE"
+  {
+    printf '\n\n## Sources\n\n'
+    cat /tmp/sources.md
+    printf '\n'
+  } >> "$POST_FILE"
+fi
+
+# --- style guard (lightweight) ---
+if grep -qE '—| very | really | deeply | truly | far more | that is just ' "$POST_FILE"; then
+  echo "⚠️ Style warning: banned phrasing detected."
 fi
 
 # --- build validation ---
