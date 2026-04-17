@@ -66,47 +66,46 @@ Write exactly one Eleventy blog post as valid markdown.
 
 Output rules:
 - Output ONLY the post file contents
-- Do not include notes, explanations, confirmations, or commentary
-- Do not say you wrote the file
-- Do not wrap the answer in code fences
+- No explanations, no commentary, no meta text
+- No code fences
 
 Required format:
-1. YAML front matter:
 ---
 title: <short title>
 date: ${DATE_LOCAL}
 tags:
   - posts
 layout: post.liquid
+sources:
+  - title: <source 1 title>
+    url: <source 1 url>
+  - title: <source 2 title>
+    url: <source 2 url>
 ---
-2. Then the article body
+
+Then the article body.
 
 Writing rules:
-- 500 to 1000 words
-- concrete, specific, human
-- no self-help fluff
-- no AI meta-commentary
+- 500 to 900 words
+- grounded, specific, human
+- no AI meta commentary
 - no emojis
 - no hashtags
-- no lists unless absolutely necessary
-- mild personality is fine
-- avoid sounding inspirational or preachy
-- cite works whenever you summarize or research a topic 
+- avoid preachy tone
+- use recent web information when relevant
+- only cite sources returned by grounding
+- if grounding returns no usable sources, write an evergreen NorCal wine post and omit invented citations
 
 Topic:
-Choose a topic, one per day, that relates to the Northern California Wine industy.  Potential topics include:
-- Google search recent news on the NorCal wine industry, summarize and cite the article.
-- Google search recent restaurant openings or news in the Novato/ Marin County/ San Fran/ Bay Area.  Summarize and cite, and where it makes sense, talk about recommended dishes and recommended wine parings
-- Find a local Northern California winery and discuss it, diving into its notes, parings, history, etc.
-- Find a local NorCal wine making family, give their history 
-- Write about one small, real, everyday observation that feels lived-in and specific, and how NorCal wines can enhance the experience
-- Google search news for recent events in the area that can spur discussions of wine
-
-
+Choose one topic related to the Northern California wine industry.
+Possible angles:
+- recent NorCal wine industry news
+- a recent Bay Area restaurant opening with wine pairings
+- a local winery profile
+- a local wine family history
+- a local event or seasonal moment tied to wine
 EOF
 )
-
-# Non-interactive Gemini CLI
 
 jq -n --arg text "$PROMPT" '{
   contents: [
@@ -114,6 +113,11 @@ jq -n --arg text "$PROMPT" '{
       parts: [
         { text: $text }
       ]
+    }
+  ],
+  tools: [
+    {
+      google_search: {}
     }
   ]
 }' > /tmp/gemini_request.json
@@ -128,21 +132,29 @@ curl -sS \
 
 jq -r '.candidates[0].content.parts[0].text' /tmp/gemini_response.json > "$POST_FILE"
 
+# Save grounding metadata for debugging
+jq '.candidates[0].groundingMetadata' /tmp/gemini_response.json > /tmp/gemini_grounding.json || true
 
-# Basic cleanup (optional)
-
-# --- contamination guard ---
-if grep -qE 'I have written the blog post|/work/|^Here is|^Sure' "$POST_FILE"; then
+# Contamination guard
+if grep -qE 'I have written the blog post|/work/|^Here is|^Sure|^```' "$POST_FILE"; then
   echo "❌ Gemini output contaminated. Aborting commit."
   cat "$POST_FILE"
   exit 1
+fi
+
+# Require grounding when the post claims to be based on recent web info
+if grep -qiE 'recent|today|this week|opened|announced|reported' "$POST_FILE"; then
+  if ! jq -e '.candidates[0].groundingMetadata.groundingChunks | length > 0' /tmp/gemini_response.json >/dev/null 2>&1; then
+    echo "❌ Post looks newsy but no grounding metadata was returned. Aborting."
+    exit 1
+  fi
 fi
 
 # Validate build before push
 npm ci
 npm run build
 
-git add "$POST_FILE" package-lock.json package.json . || true
+git add "$POST_FILE"
 
 if git diff --cached --quiet; then
   echo "No changes to commit."
