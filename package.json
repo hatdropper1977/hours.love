@@ -1,0 +1,19 @@
+{
+  "name": "hours.love",
+  "version": "1.0.0",
+  "description": "hours.love static site",
+  "scripts": {
+    "build": "npx @11ty/eleventy",
+    "serve": "npx @11ty/eleventy --serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-hours-love:hatdropper1977/hours.love.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.5"
+  }
+}
