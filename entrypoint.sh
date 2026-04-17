@@ -2,7 +2,7 @@
 set -euo pipefail
 
 : "${GEMINI_API_KEY:?GEMINI_API_KEY is required}"
-: "${GIT_REPO_SSH:?GIT_REPO_SSH is required, e.g. git@github-hours-love:hatdropper1977/hours.love.git}"
+: "${GIT_REPO_SSH:?GIT_REPO_SSH is required}"
 : "${GIT_USER_NAME:=Gemini CLI}"
 : "${GIT_USER_EMAIL:=gemini-hours-love@users.noreply.github.com}"
 : "${SSH_KEY_SRC:=/run/secrets/gemini_hours_love}"
@@ -12,7 +12,6 @@ export TZ
 export HOME=/root
 export REPO_DIR="${REPO_DIR:-/work/hours.love}"
 export POSTS_DIR="${POSTS_DIR:-posts}"
-export DATE_UTC="$(date -u +%F)"
 export DATE_LOCAL="$(date +%F)"
 
 mkdir -p /root/.ssh /work
@@ -33,12 +32,13 @@ Host github-hours-love
   IdentityFile /root/.ssh/gemini_hours_love
   IdentitiesOnly yes
 EOF
+
 chmod 600 /root/.ssh/config
 
-# Pre-trust GitHub host key so there is no interactive prompt
 ssh-keyscan github.com >> /root/.ssh/known_hosts 2>/dev/null
 chmod 644 /root/.ssh/known_hosts
 
+# --- clone or update repo ---
 if [[ ! -d "$REPO_DIR/.git" ]]; then
   git clone "$GIT_REPO_SSH" "$REPO_DIR"
 fi
@@ -61,12 +61,13 @@ if [[ -f "$POST_FILE" ]]; then
   exit 0
 fi
 
+# --- prompt ---
 PROMPT=$(cat <<EOF
 Write exactly one Eleventy blog post as valid markdown.
 
 Output rules:
 - Output ONLY the post file contents
-- No explanations, no commentary, no meta text
+- No explanations or commentary
 - No code fences
 
 Required format:
@@ -76,11 +77,6 @@ date: ${DATE_LOCAL}
 tags:
   - posts
 layout: post.liquid
-sources:
-  - title: <source 1 title>
-    url: <source 1 url>
-  - title: <source 2 title>
-    url: <source 2 url>
 ---
 
 Then the article body.
@@ -92,26 +88,23 @@ Writing rules:
 - no emojis
 - no hashtags
 - avoid preachy tone
-- use recent web information when relevant
-- only cite sources returned by grounding
-- if grounding returns no usable sources, write an evergreen NorCal wine post and omit invented citations
+- do not invent citations
 
 Topic:
-Choose one topic related to the Northern California wine industry.
-Possible angles:
-- recent NorCal wine industry news
-- a recent Bay Area restaurant opening with wine pairings
-- a local winery profile
-- a local wine family history
-- a local event or seasonal moment tied to wine
+Choose one topic related to Northern California wine:
+- winery profile
+- wine + food pairing
+- local wine culture observation
+- seasonal or regional experience
 EOF
 )
 
-jq -n --arg text "$PROMPT" '{
+# --- build request safely ---
+jq -n --arg prompt "$PROMPT" '{
   contents: [
     {
       parts: [
-        { text: $text }
+        { text: $prompt }
       ]
     }
   ],
@@ -122,6 +115,7 @@ jq -n --arg text "$PROMPT" '{
   ]
 }' > /tmp/gemini_request.json
 
+# --- call Gemini API ---
 curl -sS \
   -H "Content-Type: application/json" \
   -H "x-goog-api-key: ${GEMINI_API_KEY}" \
@@ -130,30 +124,32 @@ curl -sS \
   -d @/tmp/gemini_request.json \
   > /tmp/gemini_response.json
 
+# --- extract text ---
 jq -r '.candidates[0].content.parts[0].text' /tmp/gemini_response.json > "$POST_FILE"
 
-# Save grounding metadata for debugging
-jq '.candidates[0].groundingMetadata' /tmp/gemini_response.json > /tmp/gemini_grounding.json || true
-
-# Contamination guard
+# --- contamination guard ---
 if grep -qE 'I have written the blog post|/work/|^Here is|^Sure|^```' "$POST_FILE"; then
-  echo "❌ Gemini output contaminated. Aborting commit."
+  echo "❌ Contaminated output. Aborting."
   cat "$POST_FILE"
   exit 1
 fi
 
-# Require grounding when the post claims to be based on recent web info
-if grep -qiE 'recent|today|this week|opened|announced|reported' "$POST_FILE"; then
-  if ! jq -e '.candidates[0].groundingMetadata.groundingChunks | length > 0' /tmp/gemini_response.json >/dev/null 2>&1; then
-    echo "❌ Post looks newsy but no grounding metadata was returned. Aborting."
-    exit 1
-  fi
+# --- extract sources (if any) ---
+jq -r '
+.candidates[0].groundingMetadata.groundingChunks[]? 
+| "- [" + .web.title + "](" + .web.uri + ")"
+' /tmp/gemini_response.json > /tmp/sources.md || true
+
+if [[ -s /tmp/sources.md ]]; then
+  echo -e "\n\n## Sources\n" >> "$POST_FILE"
+  cat /tmp/sources.md >> "$POST_FILE"
 fi
 
-# Validate build before push
+# --- build validation ---
 npm ci
 npm run build
 
+# --- commit ---
 git add "$POST_FILE"
 
 if git diff --cached --quiet; then
