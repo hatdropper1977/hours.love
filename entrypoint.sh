@@ -61,8 +61,7 @@ if [[ -f "$POST_FILE" ]]; then
   exit 0
 fi
 
-PROMPT_FILE=/tmp/prompt.txt
-cat > "$PROMPT_FILE" <<EOF
+PROMPT=$(cat <<EOF
 Write exactly one Eleventy blog post as valid markdown.
 
 Output rules:
@@ -75,7 +74,7 @@ Required format:
 1. YAML front matter:
 ---
 title: <short title>
-date: 2026-04-17
+date: ${DATE_LOCAL}
 tags:
   - posts
 layout: post.liquid
@@ -105,14 +104,32 @@ Choose a topic, one per day, that relates to the Northern California Wine indust
 
 
 EOF
+)
 
 # Non-interactive Gemini CLI
-TMP=/tmp/gemini_post.txt
 
-gemini -p "$(cat "$PROMPT_FILE")" > "$TMP"
+jq -n --arg text "$PROMPT" '{
+  contents: [
+    {
+      parts: [
+        { text: $text }
+      ]
+    }
+  ]
+}' > /tmp/gemini_request.json
+
+curl -sS \
+  -H "Content-Type: application/json" \
+  -H "x-goog-api-key: ${GEMINI_API_KEY}" \
+  -X POST \
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent" \
+  -d @/tmp/gemini_request.json \
+  > /tmp/gemini_response.json
+
+jq -r '.candidates[0].content.parts[0].text' /tmp/gemini_response.json > "$POST_FILE"
+
 
 # Basic cleanup (optional)
-sed '/^```/d' "$TMP" > "$POST_FILE"
 
 # --- contamination guard ---
 if grep -qE 'I have written the blog post|/work/|^Here is|^Sure' "$POST_FILE"; then
