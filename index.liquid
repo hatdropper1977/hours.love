@@ -1,5 +1,4 @@
 ---
-layout: null
 title: hours.love
 ---
 
@@ -9,18 +8,132 @@ title: hours.love
   <meta charset="utf-8">
   <title>{{ title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #f7f3ec;
+      --paper: #fffdf9;
+      --ink: #1f1b16;
+      --muted: #6b6258;
+      --line: #ddd3c7;
+      --link: #6f2c1f;
+      --link-hover: #8a3828;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.65;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 20px 64px;
+    }
+
+    .hero {
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2.4rem;
+      line-height: 1.1;
+      font-weight: 700;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 42rem;
+    }
+
+    .intro {
+      margin: 28px 0 36px;
+      padding: 18px 20px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+    }
+
+    .posts {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .posts li {
+      padding: 18px 0 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .posts li:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .posts a {
+      color: var(--link);
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .posts a:hover {
+      color: var(--link-hover);
+      text-decoration: underline;
+    }
+
+    .meta {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+  </style>
 </head>
 <body>
-  <h1>hours.love</h1>
-  <p>Recent posts</p>
+  <main class="wrap">
+    <header class="hero">
+      <h1>hours.love</h1>
+      <p class="sub">Notes on Northern California wine, food, places, and the small details that make them worth remembering.</p>
+    </header>
 
-  <ul>
-    {% for post in collections.posts | reverse %}
-      <li>
-        <a href="{{ post.url }}">{{ post.data.title }}</a>
-        <small> — {{ post.date | date: "%Y-%m-%d" }}</small>
-      </li>
-    {% endfor %}
-  </ul>
+    <section class="intro">
+      This is a running notebook, not a magazine. Short pieces. Specific places. Good bottles. Restaurants worth knowing. Things noticed and written down before they blur.
+    </section>
+
+    <section>
+      <h2>Recent posts</h2>
+
+      {% if collections.posts and collections.posts.length > 0 %}
+        <ul class="posts">
+          {% for post in collections.posts | reverse %}
+            <li>
+              <a href="{{ post.url }}">{{ post.data.title }}</a>
+              <span class="meta">{{ post.date | date: "%B %d, %Y" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="empty">No posts yet.</p>
+      {% endif %}
+    </section>
+  </main>
 </body>
 </html>

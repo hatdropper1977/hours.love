@@ -2,13 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{{ title }}</title>
+  <title>{{ title }} | hours.love</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #f7f3ec;
+      --paper: #fffdf9;
+      --ink: #1f1b16;
+      --muted: #6b6258;
+      --line: #ddd3c7;
+      --link: #6f2c1f;
+      --link-hover: #8a3828;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.75;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 20px 64px;
+    }
+
+    .back {
+      margin-bottom: 28px;
+      font-size: 0.95rem;
+    }
+
+    .back a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .back a:hover {
+      color: var(--link-hover);
+      text-decoration: underline;
+    }
+
+    article {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 28px 24px 32px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      line-height: 1.12;
+      font-size: 2.2rem;
+    }
+
+    .meta {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    p {
+      margin: 0 0 1.1em;
+    }
+
+    h2, h3 {
+      margin-top: 1.8em;
+      line-height: 1.25;
+    }
+
+    a {
+      color: var(--link);
+    }
+
+    a:hover {
+      color: var(--link-hover);
+    }
+
+    ul, ol {
+      padding-left: 1.2rem;
+    }
+  </style>
 </head>
 <body>
-  <p><a href="/">← Back</a></p>
-  <h1>{{ title }}</h1>
-  <p>Published: {{ date | date: "%Y-%m-%d" }}</p>
-  {{ content }}
+  <main class="wrap">
+    <div class="back">
+      <a href="/">← Back to all posts</a>
+    </div>
+
+    <article>
+      <h1>{{ title }}</h1>
+      <p class="meta">{{ date | date: "%B %d, %Y" }}</p>
+      {{ content }}
+    </article>
+  </main>
 </body>
 </html>
