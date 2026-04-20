@@ -150,42 +150,129 @@ layout: post.liquid
 
 Then the article body.
 
-Editorial goal:
-Write something a real person in Novato, Marin, or Northern California wine country would actually read.
-This site is not a personal reflection blog. It is a small local publication.
-Prioritize recent, concrete developments over abstract wine writing.
+Narrative requirements:
+- The first paragraph must introduce the story and preview what follows
+- It must clearly state what happened and why it matters
+- If a person is central, identify them immediately with name, role, and location
+- Do not open with a scene or anecdote
+- Do not open with generic background
 
-Allowed formats:
-- News brief
-- Short roundup of 2 to 4 items
-- News-driven explainer
-- Restaurant + wine angle
+Structure:
+1. Opening: what happened (fact-based lead)
+2. Details: names, locations, specifics
+3. Context: why it matters locally
+4. Optional: related developments
+5. No formal conclusion
 
 Writing rules:
-- 1000 to 1500 words
-- Lead with what happened
-- No throat-clearing
+- 300 to 600 words
+- Write like a local industry publication, not a personal blog
+- No first-person narration (no "I", "we")
+- No fictional scenes or invented experiences
+- No sensory storytelling unless tied to a real reported fact
+- Short paragraphs, factual tone
+- No pontificating
+- No generalizations
+- No moralizing
+- No reflective commentary
+- No filler phrases
+- No inspirational tone
 - No em dashes
-- No filler, no inspirational tone, no pontificating
-- Short paragraphs
-- Concrete before abstract
-- If multiple sources overlap, stitch them together cleanly
-- Name places, people, wineries, restaurants, dishes, bottles, neighborhoods, streets when relevant
-- Explain why the item matters to Marin / Novato / Northern California readers
-- If a restaurant is discussed, mention what kind of wine would make sense with the food
-- If a winery or varietal is discussed, tie it to a real producer, region, or current development
-- Do not invent citations
-- Do not repeat recent posts; choose a different angle if overlap exists
+- No intensifiers like "very", "really", "deeply", "truly", "far more"
+- Do not explain what you're about to say
+- If a sentence sounds like a diary, remove it
+- If a sentence could appear in a newspaper, keep it
+- Keep sentences under 20 words when possible
 
-Topic selection priorities:
-1. Recent Marin / Novato / Bay Area restaurant or hospitality news
-2. Recent Northern California wine industry news
-3. A local winery, grower, or wine family in the news
-4. A region or varietal only if tied to something current and specific
+Content rules:
+- Use recent, real information when available via search grounding
+- Summarize clearly and directly
+- Combine multiple sources when relevant
+- Do not fabricate facts
+- Do not fabricate firsthand experience
+- Focus on:
+  - what happened
+  - who is involved
+  - where it happened
+  - why it matters locally
+  - practical implications
+
+People coverage rules:
+- When a person is central, make them the anchor of the piece
+- Focus on what they did, changed, opened, produced, or influenced
+- Include:
+  - full name
+  - role
+  - associated business or winery
+  - location
+- Do not write generic biographies
+- Do not invent people
+- Only include people present in grounding sources
+- Prefer coverage where a person is tied to a real development
+
+Sourcing rules:
+- Prefer using 2 to 4 distinct sources when reporting news
+- Prefer sources that mention specific people, not just organizations
+- Do not rely on a single source if multiple relevant sources exist
+- Synthesize information across sources into a single narrative
+- Do not summarize sources one-by-one
+- Do not write "Article A says, Article B says"
+- Combine facts into one coherent account
+
+Citation rules:
+- Every key factual claim must come from a grounding source
+- Do not invent citations
+- Do not fabricate details
+- Use light attribution when necessary:
+  - Marin Independent Journal reported that ...
+  - The San Francisco Chronicle reported ...
+  - WineBusiness noted ...
+- Do not attribute every sentence
+- Use markdown links inline when appropriate:
+  - [publication name](url)
+- Links must correspond to real grounding sources
+- If multiple sources confirm a fact, present it once
+- If sources differ, reflect that briefly without speculation
+
+Footnote rules:
+- Footnotes are allowed but optional
+- If used, they must reference real sources
+- Use markdown footnote syntax:
+  - reference like [^1]
+  - define at bottom:
+    [^1]: Source Name - URL
+- Do not invent footnotes
+
+Failure rules:
+- If fewer than 2 relevant sources are available, write a focused piece using one source plus context
+- If no relevant sources are available, fall back to a non-news industry post
+- Do NOT invent news or citations
+
+Topic priorities (in order):
+1. Marin / Novato / Bay Area restaurant or hospitality news
+2. Northern California winery or vineyard developments
+3. Key people in the Northern California wine scene:
+   - winemakers
+   - vineyard managers
+   - owners
+   - sommeliers
+   - importers / distributors
+   - hospitality operators
+   - chefs with strong wine programs
+4. Local wine business, production, or distribution changes
+5. Regional updates tied to specific producers or places
 
 Recent posts to avoid repeating:
 ${RECENT_POSTS_CONTEXT}
 
+If a topic overlaps:
+- choose a different angle instead of repeating
+
+Title rules:
+- Specific and concrete
+- Not generic
+- Should read like a headline
+- Include a real place, business, or person when possible
 EOF
 )
 
