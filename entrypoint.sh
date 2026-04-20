@@ -132,16 +132,16 @@ fi
 
 # --- prompt ---
 PROMPT=$(cat <<EOF
-Write exactly one Eleventy blog post as valid markdown.
+Write exactly one Eleventy post as valid markdown.
 
 Output rules:
 - Output ONLY the post file contents
-- No explanations or commentary
+- No explanations, no commentary, no meta text
 - No code fences
 
 Required format:
 ---
-title: <short title>
+title: <specific title>
 date: ${DATE_LOCAL}
 tags:
   - posts
@@ -150,48 +150,42 @@ layout: post.liquid
 
 Then the article body.
 
+Editorial goal:
+Write something a real person in Novato, Marin, or Northern California wine country would actually read.
+This site is not a personal reflection blog. It is a small local publication.
+Prioritize recent, concrete developments over abstract wine writing.
+
+Allowed formats:
+- News brief
+- Short roundup of 2 to 4 items
+- News-driven explainer
+- Restaurant + wine angle
+
 Writing rules:
 - 400 to 700 words
-- shorter is better than longer
-- grounded, specific, human
-- no AI meta commentary
-- no emojis
-- Be direct. Lead with the problem, not an observation about the problem.
-- No transitions like "the payoff is", "the key point is", "the combination is". Just say the thing.
-- No em dashes.
-- No intensifiers: "very", "really", "deeply", "truly", "far more", "that is just".
-- Concrete before abstract. Start with a specific scene, object, or example.
-- Use active voice. Short sentences.
-- Do not explain what you're about to say.
-- No filler phrases: "it's worth noting", "importantly", "fundamentally".
-- Avoid generic statements. Every paragraph must contain at least one concrete detail.
-- No conclusions that summarize the article. End naturally.
-- Avoid generic wine education content.
-- If the topic overlaps with a recent post, choose a different angle instead of repeating.
-- After writing, remove 20% of the words without losing meaning.
-- Do not invent citations.
+- Lead with what happened
+- No throat-clearing
+- No em dashes
+- No filler, no inspirational tone, no pontificating
+- Short paragraphs
+- Concrete before abstract
+- If multiple sources overlap, stitch them together cleanly
+- Name places, people, wineries, restaurants, dishes, bottles, neighborhoods, streets when relevant
+- Explain why the item matters to Marin / Novato / Northern California readers
+- If a restaurant is discussed, mention what kind of wine would make sense with the food
+- If a winery or varietal is discussed, tie it to a real producer, region, or current development
+- Do not invent citations
+- Do not repeat recent posts; choose a different angle if overlap exists
 
-Style:
-- Write like a person who actually did the thing.
-- Slight edge is fine. Avoid sounding inspirational.
-- If a sentence could be removed without losing meaning, remove it.
-- Title should be specific and slightly intriguing, not generic.
-
-Structure:
-- Open with a concrete situation.
-- Build from specific to meaning.
-- No formal introduction.
-- No formal conclusion.
+Topic selection priorities:
+1. Recent Marin / Novato / Bay Area restaurant or hospitality news
+2. Recent Northern California wine industry news
+3. A local winery, grower, or wine family in the news
+4. A region or varietal only if tied to something current and specific
 
 Recent posts to avoid repeating:
 ${RECENT_POSTS_CONTEXT}
 
-Topic:
-Choose one topic related to Northern California wine:
-- winery profile
-- wine + food pairing
-- local wine culture observation
-- seasonal or regional experience
 EOF
 )
 
