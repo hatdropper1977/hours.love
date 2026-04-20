@@ -165,7 +165,7 @@ Structure:
 5. No formal conclusion
 
 Writing rules:
-- 700 to 1200 words
+- 500 to 800 words
 - Write like a local industry publication, not a personal blog
 - No first-person narration (no "I", "we")
 - No fictional scenes or invented experiences
