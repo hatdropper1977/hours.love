@@ -162,7 +162,7 @@ Allowed formats:
 - Restaurant + wine angle
 
 Writing rules:
-- 400 to 700 words
+- 1000 to 1500 words
 - Lead with what happened
 - No throat-clearing
 - No em dashes
