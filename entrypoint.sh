@@ -13,10 +13,6 @@ export HOME=/root
 export REPO_DIR="${REPO_DIR:-/work/hours.love}"
 export POSTS_DIR="${POSTS_DIR:-posts}"
 export DATE_LOCAL="$(date +%F)"
-
-# Context mode:
-#   good   = titles only
-#   better = titles + short snippets
 export RECENT_POSTS_MODE="${RECENT_POSTS_MODE:-better}"
 
 mkdir -p /root/.ssh /work
@@ -158,16 +154,16 @@ Narrative requirements:
 - Do not open with generic background
 
 Structure:
-1. Opening: what happened (fact-based lead)
+1. Opening: what happened and why it matters
 2. Details: names, locations, specifics
 3. Context: why it matters locally
 4. Optional: related developments
 5. No formal conclusion
 
 Writing rules:
-- 500 to 800 words
+- 300 to 600 words
 - Write like a local industry publication, not a personal blog
-- No first-person narration (no "I", "we")
+- No first-person narration
 - No fictional scenes or invented experiences
 - No sensory storytelling unless tied to a real reported fact
 - Short paragraphs, factual tone
@@ -197,22 +193,45 @@ Content rules:
   - why it matters locally
   - practical implications
 
+Topic balance rule:
+- Choose ONE lane per post
+- Rotate across lanes over time
+- Do not choose the people lane two days in a row
+- Prefer restaurant, winery, vineyard, business, or regional news over a profile
+- Use the people lane only when a specific person is central to a current sourced development
+- If recent posts focused on people, choose a non-people lane today
+- Use recent posts to avoid repeating both topic and format
+
+Topic lanes:
+1. Restaurant / hospitality news
+   - Marin, Novato, San Francisco, Bay Area openings, closures, chef changes, wine programs, tasting menus, awards
+
+2. Winery / vineyard developments
+   - Northern California winery news, vineyard acquisitions, harvest updates, tasting room changes, new releases, AVA developments
+
+3. Wine business / production / distribution
+   - bottling, logistics, distributors, DTC, tariffs, labor, pricing, climate, insurance, permits, land use
+
+4. Regional / varietal explainer tied to current news
+   - Napa, Sonoma, Marin, Mendocino, Anderson Valley, Russian River, Carneros, Petaluma Gap
+   - Pinot Noir, Chardonnay, Syrah, Cabernet, Zinfandel, Rhône varieties
+
+5. People in the Northern California wine scene
+   - Use this lane only when the person is tied to a current event, appointment, opening, release, award, sale, controversy, or business change
+   - Do not write generic profiles
+
 People coverage rules:
-- When a person is central, make them the anchor of the piece
-- Focus on what they did, changed, opened, produced, or influenced
-- Include:
-  - full name
-  - role
-  - associated business or winery
-  - location
-- Do not write generic biographies
+- Do not default to a person profile
+- People may appear in any article, but they should not become the article unless their action is the news
+- If a person is central, focus on what changed because of them
+- Include full name, role, business, and location only when supported by sources
 - Do not invent people
-- Only include people present in grounding sources
-- Prefer coverage where a person is tied to a real development
+- Do not write generic biographies
 
 Sourcing rules:
 - Prefer using 2 to 4 distinct sources when reporting news
-- Prefer sources that mention specific people, not just organizations
+- Prefer sources that mention specific businesses, places, events, or developments
+- Prefer people sources only when the person is tied to a specific development
 - Do not rely on a single source if multiple relevant sources exist
 - Synthesize information across sources into a single narrative
 - Do not summarize sources one-by-one
@@ -248,21 +267,7 @@ Failure rules:
 - If no relevant sources are available, fall back to a non-news industry post
 - Do NOT invent news or citations
 
-Topic priorities (in order):
-1. Marin / Novato / Bay Area restaurant or hospitality news
-2. Northern California winery or vineyard developments
-3. Key people in the Northern California wine scene:
-   - winemakers
-   - vineyard managers
-   - owners
-   - sommeliers
-   - importers / distributors
-   - hospitality operators
-   - chefs with strong wine programs
-4. Local wine business, production, or distribution changes
-5. Regional updates tied to specific producers or places
-
-Recent posts to avoid repeating:
+Recent posts to avoid repeating in topic OR format:
 ${RECENT_POSTS_CONTEXT}
 
 If a topic overlaps:
@@ -272,7 +277,8 @@ Title rules:
 - Specific and concrete
 - Not generic
 - Should read like a headline
-- Include a real place, business, or person when possible
+- Include a real place, business, event, or person when appropriate
+- Do not force a person's name into the title unless the story is actually about that person
 EOF
 )
 
@@ -356,7 +362,7 @@ if [[ -s /tmp/sources.md ]]; then
   } >> "$POST_FILE"
 fi
 
-# --- style guard (lightweight) ---
+# --- style guard, warning only ---
 if grep -qE '—| very | really | deeply | truly | far more | that is just ' "$POST_FILE"; then
   echo "⚠️ Style warning: banned phrasing detected."
 fi
@@ -377,4 +383,3 @@ git commit -m "Auto post ${DATE_LOCAL}"
 git push origin main
 
 echo "Done."
-
