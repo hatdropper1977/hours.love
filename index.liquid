@@ -10,13 +10,13 @@ title: hours.love
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
-      --bg: #f7f3ec;
-      --paper: #fffdf9;
-      --ink: #1f1b16;
-      --muted: #6b6258;
-      --line: #ddd3c7;
-      --link: #6f2c1f;
-      --link-hover: #8a3828;
+      --bg: #f6f1ea;
+      --card: #fffdf8;
+      --ink: #211a14;
+      --muted: #70675d;
+      --line: #ded3c5;
+      --accent: #7b2d26;
+      --accent-dark: #571d18;
     }
 
     * { box-sizing: border-box; }
@@ -25,117 +25,241 @@ title: hours.love
       margin: 0;
       background: var(--bg);
       color: var(--ink);
-      font-family: Georgia, "Times New Roman", serif;
-      line-height: 1.65;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
     }
+
+    a { color: inherit; }
 
     .wrap {
-      max-width: 760px;
+      max-width: 1040px;
       margin: 0 auto;
-      padding: 40px 20px 64px;
+      padding: 32px 20px 72px;
     }
 
-    .hero {
-      margin-bottom: 32px;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 2.4rem;
-      line-height: 1.1;
-      font-weight: 700;
-    }
-
-    .sub {
-      margin: 0;
-      color: var(--muted);
-      font-size: 1.05rem;
-      max-width: 42rem;
-    }
-
-    .intro {
-      margin: 28px 0 36px;
-      padding: 18px 20px;
-      background: var(--paper);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-
-    h2 {
-      margin: 0 0 18px;
-      font-size: 1.15rem;
-      letter-spacing: 0.02em;
-    }
-
-    .posts {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .posts li {
-      padding: 18px 0 22px;
-      border-top: 1px solid var(--line);
-    }
-
-    .posts li:last-child {
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding-bottom: 22px;
       border-bottom: 1px solid var(--line);
     }
 
-    .posts a {
-      color: var(--link);
-      text-decoration: none;
-      font-size: 1.2rem;
+    .brand {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
       font-weight: 700;
+      letter-spacing: -0.03em;
     }
 
-    .posts a:hover {
-      color: var(--link-hover);
-      text-decoration: underline;
+    .kicker {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: right;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 32px;
+      padding: 48px 0 42px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 5vw, 4.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      max-width: 34rem;
+    }
+
+    .latest {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 18px 45px rgba(51, 35, 21, 0.08);
+    }
+
+    .label {
+      display: inline-block;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 12px;
+    }
+
+    .latest h2 {
+      margin: 0 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.65rem;
+      line-height: 1.12;
+    }
+
+    .latest h2 a {
+      text-decoration: none;
+    }
+
+    .latest h2 a:hover {
+      color: var(--accent);
     }
 
     .meta {
-      display: block;
-      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin: 34px 0 16px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .section-head span {
       color: var(--muted);
       font-size: 0.92rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 170px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(51, 35, 21, 0.08);
+    }
+
+    .card a {
+      text-decoration: none;
+    }
+
+    .card h3 {
+      margin: 0 0 12px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.25rem;
+      line-height: 1.2;
+    }
+
+    .card h3:hover {
+      color: var(--accent);
     }
 
     .empty {
       color: var(--muted);
       font-style: italic;
     }
+
+    footer {
+      margin-top: 54px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .kicker {
+        text-align: left;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 34px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
+
 <body>
   <main class="wrap">
-    <header class="hero">
-      <h1>hours.love</h1>
-      <p class="sub">Notes on Northern California wine, food, places, and the small details that make them worth remembering.</p>
+    <header class="topbar">
+      <div class="brand">hours.love</div>
+      <div class="kicker">Marin · Novato · Northern California wine</div>
     </header>
 
-    <section class="intro">
-      This is a running notebook, not a magazine. Short pieces. Specific places. Good bottles. Restaurants worth knowing. Things noticed and written down before they blur.
+    {% assign posts = collections.posts | reverse %}
+    {% assign latest = posts | first %}
+
+    <section class="hero">
+      <div>
+        <h1>Wine country, without the brochure copy.</h1>
+        <p>Northern California wine, restaurants, and the people moving the local scene.</p>
+      </div>
+
+      {% if latest %}
+        <aside class="latest">
+          <span class="label">Latest</span>
+          <h2><a href="{{ latest.url }}">{{ latest.data.title }}</a></h2>
+          <div class="meta">{{ latest.date | date: "%B %d, %Y" }}</div>
+        </aside>
+      {% endif %}
     </section>
 
     <section>
-      <h2>Recent posts</h2>
+      <div class="section-head">
+        <h2>Recent posts</h2>
+        <span>Latest first</span>
+      </div>
 
-      {% if collections.posts and collections.posts.length > 0 %}
-       {% assign posts = collections.posts | reverse %}
-
-       <ul class="posts">
-        {% for post in posts %}
-         <li>
-          <a href="{{ post.url }}">{{ post.data.title }}</a>
-          <span class="meta">{{ post.date | date: "%B %d, %Y" }}</span>
-         </li>
-        {% endfor %}
-       </ul>
-     {% else %}
-      <p class="empty">No posts yet.</p>
-     {% endif %}
+      {% if posts and posts.length > 0 %}
+        <div class="grid">
+          {% for post in posts %}
+            <article class="card">
+              <a href="{{ post.url }}">
+                <h3>{{ post.data.title }}</h3>
+              </a>
+              <div class="meta">{{ post.date | date: "%B %d, %Y" }}</div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty">No posts yet.</p>
+      {% endif %}
     </section>
+
+    <footer>
+      A small local wire for wine, food, and hospitality across Marin, Novato, and Northern California.
+    </footer>
   </main>
 </body>
 </html>
