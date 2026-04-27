@@ -82,14 +82,6 @@ title: hours.love
       max-width: 34rem;
     }
 
-    .latest {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 18px 45px rgba(51, 35, 21, 0.08);
-    }
-
     .label {
       display: inline-block;
       color: var(--accent);
@@ -100,11 +92,19 @@ title: hours.love
       margin-bottom: 12px;
     }
 
+    .latest {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 18px 45px rgba(51, 35, 21, 0.08);
+    }
+
     .latest h2 {
-      margin: 0 0 10px;
+      margin: 0;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.65rem;
-      line-height: 1.12;
+      font-size: 1.9rem;
+      line-height: 1.1;
     }
 
     .latest h2 a {
@@ -225,14 +225,21 @@ title: hours.love
         <h1>Wine country, for wine lovers.</h1>
         <p>Northern California wine, restaurants, and the people moving the local scene.</p>
       </div>
+        {% assign posts = collections.posts | reverse %}
 
-      {% if latest %}
-        <aside class="latest">
-          <span class="label">Latest</span>
-          <h2><a href="{{ latest.url }}">{{ latest.data.title }}</a></h2>
-          <div class="meta">{{ latest.date | date: "%B %d, %Y" }}</div>
-        </aside>
-      {% endif %}
+         {% if latest %}
+           <aside class="latest">
+             <span class="label">Latest</span>
+         
+             <h2>
+               <a href="{{ latest.url }}">{{ latest.data.title }}</a>
+             </h2>
+         
+             <div class="meta">
+               {{ latest.date | date: "%B %d, %Y" }}
+             </div>
+           </aside>
+         {% endif %}
     </section>
 
     <section>
