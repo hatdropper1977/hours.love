@@ -1,0 +1,27 @@
+---
+permalink: /feed.xml
+eleventyExcludeFromCollections: true
+---
+{% assign posts = collections.posts | reverse %}
+{% assign latest = posts | first %}
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>hours.love</title>
+  <subtitle>Northern California wine, restaurants, and the people shaping the local scene.</subtitle>
+  <link href="https://hours.love/feed.xml" rel="self" />
+  <link href="https://hours.love/" />
+  <id>https://hours.love/</id>
+  {% if latest %}
+  <updated>{{ latest.date | date: "%Y-%m-%dT%H:%M:%SZ" }}</updated>
+  {% endif %}
+
+  {% for post in posts %}
+  <entry>
+    <title>{{ post.data.title | escape }}</title>
+    <link href="https://hours.love{{ post.url }}" />
+    <id>https://hours.love{{ post.url }}</id>
+    <updated>{{ post.date | date: "%Y-%m-%dT%H:%M:%SZ" }}</updated>
+    <content type="html">{{ post.templateContent | escape }}</content>
+  </entry>
+  {% endfor %}
+</feed>
